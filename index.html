@@ -12,12 +12,14 @@
 <meta name="theme-color" content="#F2EBDF">
 <meta name="mobile-web-app-capable" content="yes">
 
-<!-- App icon (SVG, used for apple-touch-icon and favicon) -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='38' fill='%23E85D4A'/%3E%3Ctext x='90' y='118' font-size='100' text-anchor='middle'%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='38' fill='%23E85D4A'/%3E%3Ctext x='90' y='118' font-size='100' text-anchor='middle'%3E%E2%9D%A4%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<!-- App icon — real PNG files (required for iOS home-screen icon) -->
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
-<!-- Web app manifest, inlined as a data URI so the whole app is one file -->
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Cardiologie%22%2C%22short_name%22%3A%22Cardiologie%22%2C%22description%22%3A%22Guide%20d%C3%A9cisionnel%20de%20cardiologie%20-%20ESC%2FEACTS%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F2EBDF%22%2C%22theme_color%22%3A%22%23F2EBDF%22%2C%22orientation%22%3A%22portrait%22%7D">
+<!-- Web app manifest as a separate file so it can reference the PNG icons -->
+<link rel="manifest" href="manifest.webmanifest">
 
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -45,19 +47,29 @@
   // Register a minimal service worker for offline support once installed
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'cardiologie-v1';
+      const CACHE = 'cardiologie-v2';
       self.addEventListener('install', e => {
         e.waitUntil(
           caches.open(CACHE).then(cache => cache.addAll([
             './',
             './app_component_compiled.js',
+            './manifest.webmanifest',
+            './icon-180.png',
+            './icon-192.png',
+            './icon-512.png',
             'https://unpkg.com/react@18/umd/react.production.min.js',
             'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js'
           ])).catch(()=>{})
         );
         self.skipWaiting();
       });
-      self.addEventListener('activate', e => self.clients.claim());
+      self.addEventListener('activate', e => {
+        e.waitUntil(
+          caches.keys().then(keys => Promise.all(
+            keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+          )).then(() => self.clients.claim())
+        );
+      });
       self.addEventListener('fetch', e => {
         e.respondWith(
           caches.match(e.request).then(cached => cached || fetch(e.request).then(resp => {
