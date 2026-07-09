@@ -28,54 +28,9 @@
   /* Respect iOS safe areas (notch / home indicator) when running standalone */
   #root { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); min-height: 100vh; }
   ::-webkit-scrollbar { display: none; }
-
-  /* ── Écran de verrouillage ── */
-  #lock {
-    position: fixed; inset: 0; z-index: 9999;
-    background: linear-gradient(180deg, #F2EBDF 0%, #EDE3D2 100%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 24px; padding-top: calc(env(safe-area-inset-top) + 24px);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-  #lock .logo {
-    width: 64px; height: 64px; border-radius: 16px;
-    background: linear-gradient(135deg, #EE6E5A, #E85D4A);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 34px; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(232,93,74,0.3);
-  }
-  #lock h1 { font-size: 20px; font-weight: 800; color: #3A3328; margin: 0 0 4px; }
-  #lock p { font-size: 13px; color: #7A6F5C; margin: 0 0 22px; text-align: center; }
-  #lock .field { width: 100%; max-width: 300px; }
-  #lock input {
-    width: 100%; box-sizing: border-box; padding: 13px 15px;
-    background: #FBF8F1; border: 1.5px solid #E3D7C0; border-radius: 11px;
-    font-size: 16px; color: #3A3328; outline: none; font-family: inherit; text-align: center;
-  }
-  #lock input:focus { border-color: #E85D4A; }
-  #lock button {
-    width: 100%; max-width: 300px; margin-top: 12px; padding: 13px;
-    background: #E85D4A; color: #fff; border: none; border-radius: 11px;
-    font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
-  }
-  #lock button:active { opacity: 0.85; }
-  #lock .err { color: #EB5757; font-size: 12px; margin-top: 10px; height: 14px; font-weight: 600; }
-  #lock .hint { color: #C2B59A; font-size: 11px; margin-top: 18px; }
 </style>
 </head>
 <body>
-
-<!-- ── Écran de verrouillage (barrière d'accès simple) ── -->
-<div id="lock">
-  <div class="logo">❤️</div>
-  <h1>Cardiologie</h1>
-  <p>Accès réservé — veuillez saisir le mot de passe</p>
-  <div class="field">
-    <input id="lock-pw" type="password" placeholder="Mot de passe" autocomplete="off" autocapitalize="off" autocorrect="off" inputmode="text">
-    <button id="lock-btn">Déverrouiller</button>
-    <div class="err" id="lock-err"></div>
-  </div>
-  <div class="hint">🔒 Outil professionnel — usage réservé</div>
-</div>
 <div id="root">
   <div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#7A6F5C;font-size:14px;">
     Chargement…
@@ -86,57 +41,13 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 <script src="app_component_compiled.js"></script>
 <script>
-  // ── Barrière d'accès simple (mot de passe partagé) ──
-  // NOTE : protection légère côté client — dissuasive, non sécurisée.
-  var APP_PASSWORD = "cardio2026";   // ← change ce mot de passe puis republie le fichier
-  var UNLOCK_KEY = "cardio_unlocked";
-
-  var appStarted = false;
-  function startApp() {
-    if (appStarted) return;
-    appStarted = true;
-    var root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(React.createElement(App));
-  }
-
-  function unlock() {
-    var lock = document.getElementById('lock');
-    if (lock) lock.style.display = 'none';
-    startApp();
-  }
-
-  (function initLock() {
-    var lock = document.getElementById('lock');
-    var input = document.getElementById('lock-pw');
-    var btn = document.getElementById('lock-btn');
-    var err = document.getElementById('lock-err');
-
-    // Déjà déverrouillé sur cet appareil ?
-    var remembered = false;
-    try { remembered = localStorage.getItem(UNLOCK_KEY) === "1"; } catch (e) {}
-    if (remembered) { unlock(); return; }
-
-    function tryUnlock() {
-      if (input.value === APP_PASSWORD) {
-        try { localStorage.setItem(UNLOCK_KEY, "1"); } catch (e) {}
-        unlock();
-      } else {
-        err.textContent = "Mot de passe incorrect";
-        input.value = "";
-        input.focus();
-      }
-    }
-    btn.addEventListener('click', tryUnlock);
-    input.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') tryUnlock();
-    });
-    setTimeout(function(){ input.focus(); }, 100);
-  })();
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(React.createElement(App));
 
   // Register a minimal service worker for offline support once installed
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'cardiologie-v2';
+      const CACHE = 'cardiologie-v3';
       self.addEventListener('install', e => {
         e.waitUntil(
           caches.open(CACHE).then(cache => cache.addAll([
@@ -160,6 +71,10 @@
         );
       });
       self.addEventListener('fetch', e => {
+        // Ne jamais mettre en cache / intercepter les requêtes d'analytics
+        if (e.request.url.indexOf('goatcounter.com') !== -1 || e.request.url.indexOf('gc.zgo.at') !== -1) {
+          return; // laisse passer vers le réseau
+        }
         e.respondWith(
           caches.match(e.request).then(cached => cached || fetch(e.request).then(resp => {
             const copy = resp.clone();
@@ -173,5 +88,9 @@
     navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
   }
 </script>
+
+<!-- ── Compteur de visites (GoatCounter — sans cookie, RGPD-friendly) ── -->
+<script data-goatcounter="https://cardiologie.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
