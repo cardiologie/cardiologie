@@ -1,6 +1,6 @@
 {
-  "name": "Cardiologie",
-  "short_name": "Cardiologie",
+  "name": "CardioVade",
+  "short_name": "CardioVade",
   "description": "Guide décisionnel de cardiologie - ESC/EACTS",
   "start_url": "./",
   "display": "standalone",
