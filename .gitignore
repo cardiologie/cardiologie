@@ -2,3 +2,6 @@
 *.bak-*
 *.v1.3-sauvegarde
 .DS_Store
+
+# Outillage local (non lie au projet)
+.claude/
