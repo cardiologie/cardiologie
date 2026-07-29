@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="CardioGuide">
-<meta name="theme-color" content="#F2EBDF">
+<meta name="theme-color" content="#EDE1CB">
 <script>
   // Applique le thème avant le premier rendu (évite le flash clair)
   (function () {
@@ -19,7 +19,7 @@
       document.documentElement.setAttribute('data-theme', t);
       if (t === 'dark') {
         var m = document.querySelector('meta[name="theme-color"]');
-        if (m) m.setAttribute('content', '#14120E');
+        if (m) m.setAttribute('content', '#100D09');
       }
     } catch (e) {}
   })();
@@ -37,9 +37,9 @@
 
 <style>
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin:0; padding:0; background:#F2EBDF; overscroll-behavior-y: none; }
-  html[data-theme="dark"], html[data-theme="dark"] body { background:#14120E; }
-  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+  html, body { margin:0; padding:0; background:#F0E6D3; overscroll-behavior-y: none; }
+  html[data-theme="dark"], html[data-theme="dark"] body { background:#14110C; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   /* Respect iOS safe areas (notch / home indicator) when running standalone */
   #root { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); min-height: 100vh; }
   ::-webkit-scrollbar { display: none; }
@@ -47,7 +47,7 @@
 </head>
 <body>
 <div id="root">
-  <div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#7A6F5C;font-size:14px;">
+  <div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#6E6048;font-size:14px;">
     Chargement…
   </div>
 </div>
@@ -62,7 +62,7 @@
   // Register a minimal service worker for offline support once installed
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'cardiologie-v14';
+      const CACHE = 'cardiologie-v18';
       self.addEventListener('install', e => {
         e.waitUntil(
           caches.open(CACHE).then(cache => cache.addAll([

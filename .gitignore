@@ -1,0 +1,4 @@
+# Sauvegardes locales de travail
+*.bak-*
+*.v1.3-sauvegarde
+.DS_Store

@@ -1,15 +1,17 @@
 {
-  "name": "CardioVade",
-  "short_name": "CardioVade",
-  "description": "Guide décisionnel de cardiologie - ESC/EACTS",
+  "name": "CardioGuide",
+  "short_name": "CardioGuide",
+  "description": "Guide décisionnel de cardiologie — recommandations ESC/EACTS",
+  "lang": "fr",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#F2EBDF",
-  "theme_color": "#F2EBDF",
   "orientation": "portrait",
+  "background_color": "#F0E6D3",
+  "theme_color": "#F0E6D3",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
