@@ -12430,10 +12430,16 @@ export default function App() {
       <div style={{
         background: SURF,
         borderBottom:`1px solid ${BDR}`,
-        padding: sub || ch || refSection ? "14px 18px 12px" : "20px 18px 10px",
+        // Sur ordinateur, la géométrie doit être celle du contenu
+        // (48 px de marge, largeur maximale 1400) : sinon l'en-tête est
+        // centré sur 1100 px et son titre paraît décalé vers la droite.
+        padding: isDesktop
+          ? (sub || ch || refSection ? "14px 48px 12px" : "20px 48px 10px")
+          : (sub || ch || refSection ? "14px 18px 12px" : "20px 18px 10px"),
         transition:"background 0.3s",
       }}>
-        <div style={{ display:"flex", alignItems:"center", gap:11, maxWidth:headerMaxWidth, margin:"0 auto" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:11,
+          maxWidth: isDesktop ? 1400 : headerMaxWidth, margin:"0 auto" }}>
           {(sub || ch || refSection) ? (
             <button
               onClick={sub ? (hist.length > 0 ? back : homeChapter) : (refSection ? () => setRefSection(null) : homeAll)}
@@ -12445,7 +12451,10 @@ export default function App() {
               }}
               aria-label="Retour"
             ><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
-          ) : (
+          ) : isDesktop ? null : (
+            /* Marque affichée seulement sur téléphone : sur ordinateur le
+               rail la porte déjà, et l'icône décalerait le titre par
+               rapport au contenu situé juste en dessous. */
             <Icon name="pulse" size={20} stroke={1.8} style={{ color:"var(--cg-accent)" }}/>
           )}
           <div style={{ minWidth:0, flex:1 }}>
