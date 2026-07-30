@@ -164,6 +164,12 @@ const VALVES = {
 };
 
 // Regroupement des cartes de référence de l'accueil en sections "chapeau"
+// Les cinq valvulopathies natives, seules entrées du chapitre.
+// VALVES sert aussi de registre aux fiches de référence (ECG, imagerie)
+// et aux outils (calculateurs, compte-rendu ETT) : sans cette liste
+// explicite, ces derniers réapparaîtraient dans le chapitre.
+const VALVE_KEYS = ["rac", "iao", "im", "rm", "it"];
+
 const REF_SECTIONS = {
   ecgSec:   { label: "ECG", full: "Électrocardiogramme — normal & pathologique", icon: "📈", color: "#C26A1C",
     items: ["ecg", "ecgpath"] },
@@ -2362,6 +2368,142 @@ function CRETTSelect({ label, value, setValue, options, width }) {
     </div>
   );
 }
+// ── Cinétique segmentaire : modèle à 17 segments (AHA / ASE) ──────
+// t = territoire coronaire habituel ; les variantes anatomiques sont
+// fréquentes, d'où la formulation prudente dans la conclusion générée.
+const SEG17 = [
+  { id:1,  n:"Antérieur",      lvl:"basal",  t:"IVA" },
+  { id:2,  n:"Antéro-septal",  lvl:"basal",  t:"IVA" },
+  { id:3,  n:"Inféro-septal",  lvl:"basal",  t:"CD"  },
+  { id:4,  n:"Inférieur",      lvl:"basal",  t:"CD"  },
+  { id:5,  n:"Inféro-latéral", lvl:"basal",  t:"Cx"  },
+  { id:6,  n:"Antéro-latéral", lvl:"basal",  t:"Cx"  },
+  { id:7,  n:"Antérieur",      lvl:"moyen",  t:"IVA" },
+  { id:8,  n:"Antéro-septal",  lvl:"moyen",  t:"IVA" },
+  { id:9,  n:"Inféro-septal",  lvl:"moyen",  t:"CD"  },
+  { id:10, n:"Inférieur",      lvl:"moyen",  t:"CD"  },
+  { id:11, n:"Inféro-latéral", lvl:"moyen",  t:"Cx"  },
+  { id:12, n:"Antéro-latéral", lvl:"moyen",  t:"Cx"  },
+  { id:13, n:"Antérieur",      lvl:"apical", t:"IVA" },
+  { id:14, n:"Septal",         lvl:"apical", t:"IVA" },
+  { id:15, n:"Inférieur",      lvl:"apical", t:"CD"  },
+  { id:16, n:"Latéral",        lvl:"apical", t:"Cx"  },
+  { id:17, n:"Apex",           lvl:"apex",   t:"IVA" },
+];
+// Cotation ASE : 1 normo, 2 hypo, 3 a, 4 dys, 5 anévrysme
+const KIN = [
+  { s:1, code:"N",  label:"Normokinésie", adj:"normokinétique" },
+  { s:2, code:"H",  label:"Hypokinésie",  adj:"hypokinétique"  },
+  { s:3, code:"A",  label:"Akinésie",     adj:"akinétique"     },
+  { s:4, code:"D",  label:"Dyskinésie",   adj:"dyskinétique"   },
+  { s:5, code:"An", label:"Anévrysme",    adj:"anévrysmal"     },
+];
+const TERRITOIRES = {
+  IVA: "interventriculaire antérieure",
+  CD:  "coronaire droite",
+  Cx:  "circonflexe",
+};
+
+// Grille de saisie : un appui fait défiler les cotations.
+function CRETTSegments({ segs, setSegs, color }) {
+  const cycle = id => setSegs(s => {
+    const next = ((s[id] || 1) % 5) + 1;
+    const o = { ...s };
+    if (next === 1) delete o[id]; else o[id] = next;
+    return o;
+  });
+  const niveaux = [
+    ["basal",  "Segments basaux"],
+    ["moyen",  "Segments moyens"],
+    ["apical", "Segments apicaux"],
+    ["apex",   "Apex"],
+  ];
+  return (
+    <div>
+      <div style={{ fontSize:11.5, color:MUT, lineHeight:1.5, marginBottom:10 }}>
+        Appuyez sur un segment pour faire défiler les cotations :
+        {KIN.map((k,i) => <span key={k.s}>{i?" · ":" "}<b style={{ color:INK }}>{k.code}</b> {k.label.toLowerCase()}</span>)}.
+      </div>
+      {niveaux.map(([lvl, titre]) => (
+        <div key={lvl} style={{ marginBottom:10 }}>
+          <div style={{ fontSize:9.5, fontWeight:660, letterSpacing:"0.07em",
+            textTransform:"uppercase", color:DIM, marginBottom:5 }}>{titre}</div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(104px, 1fr))", gap:6 }}>
+            {SEG17.filter(s => s.lvl === lvl).map(seg => {
+              const sc = segs[seg.id] || 1;
+              const k = KIN[sc-1];
+              const on = sc > 1;
+              return (
+                <button key={seg.id} onClick={() => cycle(seg.id)}
+                  aria-label={`${seg.n} ${seg.lvl} — ${k.label}`}
+                  style={{
+                    minHeight:46, padding:"7px 9px", borderRadius:6, cursor:"pointer",
+                    textAlign:"left", fontFamily:"inherit",
+                    border:`1px solid ${on ? "var(--cg-accent-line)" : BDR}`,
+                    background: on ? "var(--cg-accent-soft)" : PANEL,
+                    transition:"border-color 0.12s, background 0.12s",
+                    display:"flex", alignItems:"center", gap:7,
+                  }}>
+                  <span style={{
+                    minWidth:20, height:20, borderRadius:4, flexShrink:0,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:9.5, fontWeight:700,
+                    background: on ? tone(color) : "transparent",
+                    color: on ? "var(--cg-on-accent)" : DIM,
+                    border: on ? "none" : `1px solid ${BDR}`,
+                  }}>{k.code}</span>
+                  <span style={{ fontSize:11, fontWeight:520, color: on ? INK : MUT,
+                    lineHeight:1.25 }}>{seg.n}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Rédige la description des troubles et calcule l'indice de cinétique.
+function decrireCinetique(segs) {
+  const ids = Object.keys(segs).map(Number).filter(id => segs[id] > 1);
+  const wmsi = SEG17.reduce((sum, s) => sum + (segs[s.id] || 1), 0) / SEG17.length;
+  if (!ids.length) return { texte:"", wmsi, nb:0, territoires:[] };
+
+  // Chaque segment est nommé avec son niveau, et l'ensemble introduit par
+  // « du segment » / « des segments ». Cette tournure évite les accords
+  // fautifs (akinésie est féminin, antéro-septal masculin) et les
+  // ambiguïtés du type « antérieur et septal apical ».
+  const parGroupe = {};
+  ids.sort((a,b) => a-b).forEach(id => {
+    const seg = SEG17.find(s => s.id === id);
+    const k = KIN[segs[id]-1];
+    (parGroupe[k.label] = parGroupe[k.label] || []).push(seg);
+  });
+
+  const joindre = liste => liste.length > 1
+    ? liste.slice(0,-1).join(", ") + " et " + liste[liste.length-1]
+    : liste[0];
+
+  const morceaux = Object.entries(parGroupe).map(([label, list]) => {
+    const apex = list.some(s => s.lvl === "apex");
+    const autres = list.filter(s => s.lvl !== "apex")
+      .map(s => `${s.n.toLowerCase()} ${s.lvl}`);
+    const bouts = [];
+    if (autres.length) {
+      bouts.push(`${autres.length > 1 ? "des segments" : "du segment"} ${joindre(autres)}`);
+    }
+    if (apex) bouts.push("de l'apex");
+    // « ainsi que » plutôt qu'un second « et » : la liste de segments en
+    // contient déjà un, et deux d'affilée se lisent mal.
+    return `${label.toLowerCase()} ${bouts.join(", ainsi que ")}`;
+  });
+
+  // Territoire : signalé seulement si tous les segments atteints s'y rattachent.
+  const terrs = [...new Set(ids.map(id => SEG17.find(s => s.id === id).t))];
+  return { texte: morceaux.join(" ; "), wmsi, nb: ids.length, territoires: terrs };
+}
+
 function CRETTGenerator() {
   const c = "#2F8F66";
   // VG
@@ -2369,6 +2511,10 @@ function CRETTGenerator() {
   const [ddvg, setDdvg] = useState("");
   const [siv, setSiv] = useState("");
   const [cinetique, setCinetique] = useState("homogène");
+  // Cinétique segmentaire détaillée (17 segments) — facultative :
+  // si aucun segment n'est coté, on retombe sur la mention globale.
+  const [segs, setSegs] = useState({});
+  const [detail, setDetail] = useState(false);
   // Diastole / OG
   const [ee, setEe] = useState("");
   const [lavi, setLavi] = useState("");
@@ -2390,6 +2536,9 @@ function CRETTGenerator() {
   const num = v => { const n = parseFloat(String(v).replace(",",".")); return isNaN(n)?null:n; };
   const parts = [];
 
+  // Cinétique segmentaire (détaillée si des segments sont cotés)
+  const kin = decrireCinetique(segs);
+
   // VG systolique
   const f = num(fevg);
   if (f !== null) {
@@ -2397,8 +2546,22 @@ function CRETTGenerator() {
     let sentence = `Ventricule gauche de taille ${num(ddvg)!==null && num(ddvg)>58 ? "augmentée" : "normale"}`;
     if (siv && num(siv)!==null && num(siv) >= 12) sentence += ", hypertrophié";
     sentence += `, à fonction systolique ${q} (FEVG ${f} %`;
-    sentence += cinetique !== "homogène" ? `, ${cinetique})` : ", cinétique segmentaire homogène)";
+    if (kin.nb > 0) sentence += ")";
+    else sentence += cinetique !== "homogène" ? `, ${cinetique})` : ", cinétique segmentaire homogène)";
     parts.push(sentence + ".");
+  }
+
+  // Description détaillée des troubles de la cinétique
+  if (kin.nb > 0) {
+    let phrase = kin.texte.charAt(0).toUpperCase() + kin.texte.slice(1);
+    // Territoire mentionné uniquement s'il est unique et cohérent.
+    if (kin.territoires.length === 1) {
+      phrase += `, dans le territoire de l'artère ${TERRITOIRES[kin.territoires[0]]}`;
+    } else if (kin.territoires.length > 1) {
+      phrase += `, intéressant ${kin.territoires.length} territoires coronaires`;
+    }
+    phrase += ` (${kin.nb} segment${kin.nb>1?"s":""} sur 17, indice de cinétique segmentaire ${kin.wmsi.toFixed(2).replace(".",",")})`;
+    parts.push(phrase + ".");
   }
 
   // Diastole
@@ -2475,8 +2638,59 @@ function CRETTGenerator() {
         <CRETTField label="DTD VG" value={ddvg} setValue={setDdvg} unit="mm" width="1 1 30%"/>
         <CRETTField label="SIV" value={siv} setValue={setSiv} unit="mm" width="1 1 30%"/>
       </div>
-      <CRETTSelect label="Cinétique segmentaire" value={cinetique} setValue={setCinetique}
-        options={["homogène","hypokinésie globale","trouble de cinétique segmentaire","akinésie territoriale"]}/>
+      {!detail && (
+        <CRETTSelect label="Cinétique segmentaire" value={cinetique} setValue={setCinetique}
+          options={["homogène","hypokinésie globale","trouble de cinétique segmentaire","akinésie territoriale"]}/>
+      )}
+
+      {/* Description segment par segment — repliée par défaut pour ne pas
+          alourdir la saisie quand la cinétique est homogène. */}
+      <button onClick={() => setDetail(d => !d)} style={{
+        width:"100%", minHeight:42, marginTop:2, marginBottom:4, padding:"10px 12px",
+        display:"flex", alignItems:"center", gap:9, cursor:"pointer", fontFamily:"inherit",
+        background: detail ? "var(--cg-accent-soft)" : PANEL,
+        border:`1px solid ${detail ? "var(--cg-accent-line)" : BDR}`, borderRadius:6,
+        color: detail ? tone(c) : TXT, fontSize:12.5, fontWeight:540, textAlign:"left",
+      }}>
+        <Icon name="target" size={15} style={{ color: detail ? tone(c) : "var(--cg-dim)" }}/>
+        Détailler la cinétique segmentaire (17 segments)
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+          style={{ marginLeft:"auto", flexShrink:0, color:DIM,
+            transform: detail ? "rotate(90deg)" : "none", transition:"transform 0.15s" }}
+          aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+
+      {detail && (
+        <div style={{ background:SURF, border:`1px solid ${BDR}`, borderRadius:8,
+          padding:"13px 14px", marginBottom:10 }}>
+          <CRETTSegments segs={segs} setSegs={setSegs} color={c}/>
+          <div style={{ display:"flex", alignItems:"center", gap:10, flexWrap:"wrap",
+            paddingTop:11, marginTop:4, borderTop:`1px solid ${BDR}` }}>
+            <div style={{ fontSize:11.5, color:MUT }}>
+              Indice de cinétique segmentaire
+              <b style={{ color:INK, marginLeft:6, fontVariantNumeric:"tabular-nums" }}>
+                {kin.wmsi.toFixed(2).replace(".",",")}
+              </b>
+              <span style={{ marginLeft:6, color:DIM }}>
+                {kin.nb === 0 ? "(normal)" : kin.wmsi >= 1.7 ? "(atteinte étendue)" : "(atteinte limitée)"}
+              </span>
+            </div>
+            {kin.nb > 0 && (
+              <button onClick={() => setSegs({})} style={{
+                marginLeft:"auto", minHeight:32, padding:"6px 11px", cursor:"pointer",
+                background:"transparent", border:`1px solid ${BDR}`, borderRadius:6,
+                color:MUT, fontSize:11.5, fontFamily:"inherit",
+              }}>Réinitialiser</button>
+            )}
+          </div>
+          <div style={{ fontSize:11, color:DIM, lineHeight:1.5, marginTop:9 }}>
+            Indice = moyenne des cotations sur les 17 segments (1 si tout est normokinétique).
+            Une valeur ≥ 1,7 traduit une atteinte étendue. Les territoires coronaires indiqués
+            correspondent à la distribution habituelle : les variantes anatomiques sont fréquentes.
+          </div>
+        </div>
+      )}
 
       <Sec title="Fonction diastolique / OG" color={c}/>
       <div style={row}>
@@ -13406,7 +13620,13 @@ export default function App() {
                 Sélectionner la valvulopathie
               </div>
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10 }}>
-                {Object.entries(VALVES).filter(([key]) => !["ecg","ecgpath","ett","eto","irm","scanner","cathd","avk","poso","scores","antibio","relais","classif","equiv"].includes(key)).map(([key, valve]) => (
+                {/* Liste d'inclusion volontaire : VALVES sert aussi de
+                    registre aux fiches de référence et aux outils. Une
+                    liste d'exclusion laissait remonter ici les
+                    calculateurs et le compte-rendu ETT. */}
+                {VALVE_KEYS.map(key => VALVES[key]).filter(Boolean).map((valve, vi) => {
+                  const key = VALVE_KEYS[vi];
+                  return (
                   <div key={key} onClick={() => choose(key)} style={{
                     background: PANEL,
                     border: `1px solid ${BDR}`,
@@ -13425,7 +13645,8 @@ export default function App() {
                       <div style={{ color: MUT, fontSize: 11, marginTop: 2, lineHeight: 1.35 }}>{valve.full}</div>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
