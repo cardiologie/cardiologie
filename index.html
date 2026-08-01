@@ -62,7 +62,7 @@
   // Register a minimal service worker for offline support once installed
   if ('serviceWorker' in navigator) {
     const swCode = `
-      const CACHE = 'cardiologie-v20';
+      const CACHE = 'cardiologie-v21';
       self.addEventListener('install', e => {
         e.waitUntil(
           caches.open(CACHE).then(cache => cache.addAll([

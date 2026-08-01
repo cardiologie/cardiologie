@@ -665,7 +665,12 @@ function searchIndex(query) {
 // (265 champs `icon:`) ; la traduction se fait ici, au rendu.
 const ICON_PATHS = {
   heart:   '<path d="M19 14c1.5-1.6 2-3.4 2-5a5 5 0 0 0-9-3 5 5 0 0 0-9 3c0 1.6.5 3.4 2 5l7 7z"/>',
-  pulse:   '<path d="M3 12h3.5l2-5 3.5 10 2.5-7 1.5 2H21"/>',
+  // Complexe QRS conforme : q négatif (22 % de R, sous le seuil de 25 %
+  // au-delà duquel une onde Q signe une nécrose), R positif dominant,
+  // S négatif. Rendu entre 16 et 20 px : les ondes P et T, larges de
+  // moins de deux pixels à cette taille, sont volontairement omises —
+  // elles figurent en revanche sur l'icône de l'application.
+  pulse:   '<path d="M2 12H8l2 2 2.5-11L15 18l2-6h5"/>',
   bolt:    '<path d="M13 2 4.1 12.9a1 1 0 0 0 .8 1.6H11l-1 7.5 8.9-10.9a1 1 0 0 0-.8-1.6H12z"/>',
   drop:    '<path d="M12 2.7 6.7 8a7.5 7.5 0 1 0 10.6 0z"/>',
   lungs:   '<path d="M12 3v10"/><path d="M12 13c0 4-2 8-5.5 8C4 21 3 18.5 3 15c0-4 2-7 4-8"/><path d="M12 13c0 4 2 8 5.5 8C20 21 21 18.5 21 15c0-4-2-7-4-8"/>',
