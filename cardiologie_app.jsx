@@ -133,7 +133,7 @@ const CHANGELOG = [
       { t: "Rythmologie enrichie", d: "Stimulation & DAI (ESC 2021/2022) et Canalopathies (ESC 2022) intégrées au chapitre." },
       { t: "Mode sombre", d: "Bascule clair / sombre depuis l'en-tête, avec suivi du réglage du téléphone." },
       { t: "Nouveaux scores interactifs", d: "HEART, PESI complet, Padua, DAPT, STOP-BANG, Wells TVP et CHA₂DS₂-VASc." },
-      { t: "Contact & suggestions", d: "Signaler une coquille ou proposer un chapitre directement depuis l'accueil." },
+      { t: "Contact & suggestions", d: "Signaler une erreur ou proposer un chapitre directement depuis l'accueil." },
       { t: "Interface allégée", d: "Boutons de bas de page retirés, navigation par le bouton retour et le fil d'Ariane." },
     ],
   },
@@ -12851,16 +12851,16 @@ export default function App() {
                   <div style={{ color:DIM, fontSize:11, marginBottom:11, fontWeight:640, textTransform:"uppercase", letterSpacing:"0.09em" }}>Contact & suggestions</div>
                   <div style={{ background:PANEL, border:`1px solid var(--cg-bdr)`, borderRadius:8, padding:"16px 18px" }}>
                     <div style={{ color:MUT, fontSize:13, lineHeight:1.55, marginBottom:12 }}>
-                      Une idée de chapitre, une coquille à signaler, une remarque ? Vos retours aident à améliorer CardioGuide.
+                      Une idée de chapitre, une erreur à signaler, une remarque ? Vos retours aident à améliorer CardioGuide.
                     </div>
                     <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
                       <a href={"mailto:douglaschoignard@icloud.com?subject=" + encodeURIComponent("CardioGuide — Suggestion de chapitre") + "&body=" + encodeURIComponent("Chapitre ou fiche suggéré(e) :\n\nPourquoi ce serait utile :\n\n")}
                         style={{ flex:"1 1 auto", textDecoration:"none", textAlign:"center", background:"var(--cg-accent-btn)", color:"var(--cg-on-accent)", borderRadius:8, padding:"11px 16px", fontSize:13, fontWeight:560 }}>
  Suggérer un chapitre
                       </a>
-                      <a href={"mailto:douglaschoignard@icloud.com?subject=" + encodeURIComponent("CardioGuide — Signalement de coquille") + "&body=" + encodeURIComponent("Fiche concernée :\n\nCoquille / erreur repérée :\n\nCorrection proposée :\n\n")}
+                      <a href={"mailto:douglaschoignard@icloud.com?subject=" + encodeURIComponent("CardioGuide — Signalement d'erreur") + "&body=" + encodeURIComponent("Fiche concernée :\n\nErreur repérée :\n\nCorrection proposée :\n\n")}
                         style={{ flex:"1 1 auto", textDecoration:"none", textAlign:"center", background:PANEL, color:"#E85D4A", border:"1px solid #E85D4A", borderRadius:8, padding:"11px 16px", fontSize:13, fontWeight:560 }}>
- Signaler une coquille
+ Signaler une erreur
                       </a>
                     </div>
                   </div>
@@ -13064,16 +13064,16 @@ export default function App() {
               <div style={{ color:DIM, fontSize:11, marginBottom:9, fontWeight:640, textTransform:"uppercase", letterSpacing:"0.09em" }}>Contact & suggestions</div>
               <div style={{ background:PANEL, border:`1px solid var(--cg-bdr)`, borderRadius:8, padding:"14px 15px" }}>
                 <div style={{ color:MUT, fontSize:12.5, lineHeight:1.55, marginBottom:11 }}>
-                  Une idée de chapitre, une coquille à signaler ? Vos retours aident à améliorer CardioGuide.
+                  Une idée de chapitre, une erreur à signaler ? Vos retours aident à améliorer CardioGuide.
                 </div>
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                   <a href={"mailto:douglaschoignard@icloud.com?subject=" + encodeURIComponent("CardioGuide — Suggestion de chapitre") + "&body=" + encodeURIComponent("Chapitre ou fiche suggéré(e) :\n\nPourquoi ce serait utile :\n\n")}
                     style={{ textDecoration:"none", textAlign:"center", background:"var(--cg-accent-btn)", color:"var(--cg-on-accent)", borderRadius:8, padding:"12px", fontSize:13, fontWeight:560 }}>
  Suggérer un chapitre
                   </a>
-                  <a href={"mailto:douglaschoignard@icloud.com?subject=" + encodeURIComponent("CardioGuide — Signalement de coquille") + "&body=" + encodeURIComponent("Fiche concernée :\n\nCoquille / erreur repérée :\n\nCorrection proposée :\n\n")}
+                  <a href={"mailto:douglaschoignard@icloud.com?subject=" + encodeURIComponent("CardioGuide — Signalement d'erreur") + "&body=" + encodeURIComponent("Fiche concernée :\n\nErreur repérée :\n\nCorrection proposée :\n\n")}
                     style={{ textDecoration:"none", textAlign:"center", background:PANEL, color:"#E85D4A", border:"1px solid #E85D4A", borderRadius:8, padding:"12px", fontSize:13, fontWeight:560 }}>
- Signaler une coquille
+ Signaler une erreur
                   </a>
                 </div>
               </div>
